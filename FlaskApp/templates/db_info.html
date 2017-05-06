@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <style>
+    table,th,td {border: 1px solid black;}
+    td { text-align: center;}
+    </style>
+    <title>DMM18</title>
+</head>
+<body>
+    <table align='center'>
+        <tr><th>TABLE</th><th>ROWS</th><th>SIZE IN MB</th></tr>
+        {% for row in rows %}
+        <tr><td>{{ row[0] }}</td>
+        <td>{{row[1]}}</td>
+        <td>{{row[2]}}</td>
+        </tr>
+        {% endfor %}</table>
+
+</body>
+</html>

@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <style>
+    table,th,td {border: 1px solid black;}
+    td { text-align: center;}
+    </style>
+    <title>DMM18 LIB</title>
+</head>
+<body>
+    <h1>{{info["title"]}}</h1>
+    <table>
+        <tr><td>编号</td><td>{{ info["cid"] }}</td></tr>
+        <tr><td>喜爱人数</td><td>{{ info["favorite"] }}</td></tr>
+        <tr><td>类型</td><td>{{ info["dvd_type"] }}</td></tr>
+        <tr><td>网络发行日期</td><td>{{ info["delivery_date"] }}</td></tr>
+        <tr><td>DVD发行日期</td><td>{{ info["release_date"] }}</td></tr>
+        <tr><td>时长</td><td>{{ info["duration"] }}</td></tr>
+        <tr><td>女优</td><td>{{ info["performers"] }}</td></tr>
+        <tr><td>导演</td><td>{{ info["director"] }}</td></tr>
+        <tr><td>系列</td><td>{{ info["series"] }}</td></tr>
+        <tr><td>制片商</td><td>{{ info["maker"] }}</td></tr>
+        <tr><td>发行商</td><td>{{ info["label"] }}</td></tr>
+        <tr><td>标签</td><td>{{ info["genre"] }}</td></tr>
+        <tr><td>VR</td><td>{{ info["vr"] }}</td></tr>
+        <tr><td>品番号</td><td>{{ info["identifier"] }}</td></tr>
+        <tr><td>评分</td><td>{{ info["rate"] }}({{info["rate_num"]}}人打分)</td></tr>
+    </table>
+    <img src="{{info['img']}}" alt="post_s">
+    <img src="{{img_l}}" alt="post_l">
+     <table align='center'>
+        <tr><th>码率</th><th>链接</th></tr>
+        {% for video in sample_videos %}
+        <tr><td>{{ video["bitrate"] }}</td>
+        <td><a href='{{video["link"]}}'>{{video["link"]}}</a></td>
+
+        </tr>
+        {% endfor %}</table>
+        {% for img in sample_imgs %}
+        <img src="{{img['link']}}" alt="sample_img" onclick="">
+        {% endfor %}
+
+</body>
+</html>
