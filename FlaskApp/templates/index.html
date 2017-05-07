@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block custom_nav%}
+    <input type="text" name="key" id ='search_nav'>
+      <input type="submit" value="搜索"  onclick="window.location='/search/key='+document.getElementById('search_nav').value;">
+{% endblock%}
+
+{% block content %}
+    <h1>DMM18 Library</h1>
+    <a href="/top">最热500</a>
+      <input type="text" name="key" id ='search'>
+      <input type="submit" value="搜索"  onclick="window.location='/search/key='+document.getElementById('search').value;">
+
+{% endblock %}

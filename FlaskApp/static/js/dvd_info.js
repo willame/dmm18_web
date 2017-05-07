@@ -22,7 +22,9 @@ $(document).ready(function() {
     $(".img_s").click(function(){
         var img_s = $(this).attr('src');
         var img_l = preview_src(img_s);
-        $(this).attr('src',img_l);
+        //$(this).attr('src',img_l);
+        location.hash = "#" + "popup1";
+        $("#display").html("<img width='100%' alt='sample_l' src='"+img_l+"'>")
 
         $(this).click(function(){
             $(this).attr('src',img_s)
@@ -30,5 +32,17 @@ $(document).ready(function() {
         });
 
     });
+
+    $(".sample_video").click(function(){
+        location.hash = "#" + "popup1";
+        var src = $(this).attr('href');
+
+        $("#display").html("<video width='100%'  autoplay controls><source src='"+
+        src
+        +"'  type='video/mp4'></video>");
+        //$("button").click();
+    });
+
+
 
 });

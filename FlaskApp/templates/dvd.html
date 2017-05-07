@@ -1,18 +1,96 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
-    <script type="text/javascript" src=" {{dvd_js}}"></script>
+{% extends "dvd_base.html" %}
+    {% block custom_js_2%}<script type="text/javascript" src=" {{dvd_js}}"></script>{% endblock%}
 
-    <style>
-    table,th,td {border: 1px solid black;}
-    td { text-align: center;}
-    </style>
-    <title>DMM18 LIB</title>
-</head>
-<body>
-    <h1>{{info["title"]}}</h1>
-    <table>
+    <!--{% block custom_css %}-->
+        <!--table,th,td {border: 1px solid black;}-->
+        <!--td { text-align: center;}-->
+    <!--{% endblock %}-->
+
+    {% block custom_css_2%}
+<!--.box {-->
+  <!--width: 40%;-->
+  <!--margin: 0 auto;-->
+  <!--background: rgba(255,255,255,0.2);-->
+  <!--padding: 35px;-->
+  <!--border: 2px solid #fff;-->
+  <!--border-radius: 20px/50px;-->
+  <!--background-clip: padding-box;-->
+  <!--text-align: center;-->
+<!--}-->
+
+ul.sample-img-row {
+  white-space: nowrap;
+}
+
+ul.sample-img-row, li {
+  list-style: none;
+  display: inline;
+}
+
+.overlay {
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: rgba(0, 0, 0, 0.7);
+  transition: opacity 500ms;
+  visibility: hidden;
+  opacity: 0;
+}
+.overlay:target {
+  visibility: visible;
+  opacity: 1;
+}
+
+.popup {
+  margin: 70px auto;
+  padding: 20px;
+  background: #fff;
+  border-radius: 5px;
+  width: 700px;
+  position: relative;
+  transition: all 5s ease-in-out;
+}
+
+<!--.popup h2 {-->
+  <!--margin-top: 0;-->
+  <!--color: #333;-->
+  <!--font-family: Tahoma, Arial, sans-serif;-->
+<!--}-->
+.popup .close {
+  position: absolute;
+  top: 20px;
+  right: 30px;
+  transition: all 200ms;
+  font-size: 30px;
+  font-weight: bold;
+  text-decoration: none;
+  color: #333;
+}
+.popup .close:hover {
+  color: red;
+}
+.popup .content {
+  overflow: auto;
+}
+
+@media screen and (max-width: 700px){
+  <!--.box{-->
+    <!--width: 600px;-->
+  <!--}-->
+  .popup{
+    width: 700px;
+  }
+}
+
+{% endblock %}
+
+
+{% block title_2%}DMM18 LIB{% endblock%}
+{% block info%}
+
+    <table class="table-bordered">
         <tr><td>编号</td><td>{{ info["cid"] }}</td></tr>
         <tr><td>喜爱人数</td><td>{{ info["favorite"] }}</td></tr>
         <tr><td>类型</td><td>{{ info["dvd_type"] }}</td></tr>
@@ -33,20 +111,53 @@
         <tr><td>VR</td><td>{{ info["vr"] }}</td></tr>
         <tr><td>品番号</td><td>{{ info["identifier"] }}</td></tr>
         <tr><td>评分</td><td>{{ info["rate"] }}({{info["rate_num"]}}人打分)</td></tr>
-    </table>
-    <img src="{{info['img']}}" alt="post_s">
-    <img src="{{img_l}}" alt="post_l">
-     <table align='center'>
-        <tr><th>码率</th><th>链接</th></tr>
-        {% for video in sample_videos %}
-        <tr><td>{{ video["bitrate"] }}</td>
-        <td><a href='{{video["link"]}}'>{{video["link"]}}</a></td>
+        <tr><td>样片</td><td>
+            <ul>
+                {% for video in sample_videos %}
+                <li><a onclick="return false;" href='{{video["link"]}}' class="sample_video">码率{{video["bitrate"]}}</a></li>
+                {% endfor%}
+            </ul>
 
-        </tr>
-        {% endfor %}</table>
+        </td></tr>
+    </table>
+{%endblock%}
+{% block post_img%}
+ <p style="font-weight: bold;">{{info["title"]}}</p>
+    <a href="#" onclick="return false;"><img src="{{post_img}}" alt="post_l" width="100%"></a>
+{% endblock%}
+
+     <!--<table align='center'>-->
+        <!--<tr><th>码率</th><th>链接</th></tr>-->
+        <!--{% for video in sample_videos %}-->
+        <!--<tr><td>{{ video["bitrate"] }}</td>-->
+        <!--<td><a onclick="return false;" href='{{video["link"]}}' class="sample_video">样片(码率{{video["bitrate"]}})</a></td>-->
+        <!--</tr>-->
+        <!--{% endfor %}</table>-->
+
+
+{% block sample_imgs%}
+
+<ul class="sample-img-row">
         {% for img in sample_imgs %}
-        <a href="#" onclick="return false;"><img src="{{img['link']}}" alt="sample_img" class="img_s" ></a>
+        <li class="sample-img-element"><a href="#" onclick="return false;"><img src="{{img['link']}}" alt="sample_img" class="img_s" ></a></li>
         {% endfor %}
 
-</body>
-</html>
+</ul>
+
+
+
+<div id="popup1" class="overlay">
+	<div class="popup">
+		<h2>Here i am</h2>
+		<a class="close" href="#" onclick="document.getElementById('display').innerHTML='';">&times;</a>
+		<div class="content" id="display">
+
+		</div>
+	</div>
+</div>
+
+    {% endblock %}
+
+
+
+

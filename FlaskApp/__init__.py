@@ -3,6 +3,7 @@ from flask import Flask,redirect,request,url_for
 import MySQLdb
 import re
 import math
+from bs4 import BeautifulSoup
 
 from jinja2 import Environment, PackageLoader, select_autoescape
 env = Environment(
@@ -30,6 +31,23 @@ def find_img_src( src):
 def split_lst(lst,n):
     return [ lst[i::n] for i in xrange(n) ]
 
+def returnError(msg):
+    template = env.get_template("error.html")
+    html = template.render(msg=msg)
+    return html
+#
+# VALID_TAGS = ['strong', 'em', 'p', 'ul', 'li', 'br','/','*','%']
+#
+# def sanitize_html(value):
+#
+#     soup = BeautifulSoup(value)
+#
+#     for tag in soup.findAll(True):
+#         if tag.name not in VALID_TAGS:
+#             tag.extract()
+#
+#     return soup.renderContents()
+
 def connectDB():
     # connect to database
     db = MySQLdb.connect(host="localhost",  # your host, usually localhost
@@ -44,7 +62,11 @@ app = Flask(__name__,static_url_path='/static')
 app.debug = True
 @app.route('/')
 def index():
-    return app.send_static_file('index.html')
+    # return app.send_static_file('index.html')
+    template = env.get_template("index.html")
+    html = template.render()
+    #
+    return html
 
 @app.route("/table")
 def table():
@@ -64,7 +86,7 @@ def table():
     #
     return html
 
-@app.route('/video/<cid>')
+@app.route('/video/cid=<cid>')
 def dvd(cid):
     # connect to database
     db = MySQLdb.connect(host="localhost",  # your host, usually localhost
@@ -84,18 +106,24 @@ def dvd(cid):
         sample_videos = cur.fetchall()
         cur.execute("SELECT * FROM sample_img_links WHERE cid =\'%s\'" % cid)
         sample_imgs = cur.fetchall()
+
         dvd_js = url_for('static', filename='js/dvd_info.js')
-        html = template.render(info=result[0],img_l = find_img_src(result[0]["img"]),sample_videos = sample_videos,
-                               sample_imgs=sample_imgs,dvd_js = dvd_js)
+        html = template.render(info=result[0],sample_videos = sample_videos,
+                               sample_imgs=sample_imgs,dvd_js = dvd_js,post_img = find_img_src(result[0]['img']))
         db.close()
         return html
     elif len(result)>1:
         db.close()
-        return "duplicate cid"
+        template = env.get_template("error.html")
+        html = template.render(msg="duplicate cid")
+        return html
 
     else:
         db.close()
-        return "no dvd ",cid
+        # template = env.get_template("error.html")
+        # html = template.render(msg="no dvd "+cid)
+        return returnError("no dvd "+cid)
+
 
 @app.route('/search/key=<key>')
 @app.route('/search/key=<key>/page=<page>')
@@ -114,18 +142,22 @@ def search(key,page=None):
             # connect to database
             db = connectDB()
             cur = db.cursor(MySQLdb.cursors.DictCursor)
-            cur.execute("SELECT * FROM dvds WHERE cid REGEXP '.*(%s).*(%s).*' LIMIT 500"%(letters,numbers))
+            cur.execute("SELECT * FROM dvds WHERE identifier REGEXP '.*(%s).*(%s).*' LIMIT 500"%(letters,numbers))
             results = cur.fetchall()
             maxPage = int(math.ceil(1. * len(results) / itemsPerPage))
+            if len(results) == 0:
+                msg = u"没有结果"
+            else:
+                msg =''
             template = env.get_template("search_result.html")
             offset = itemsPerPage * min([int(page) - 1, maxPage - 1])
-            html = template.render(results= results[offset:offset+itemsPerPage-1], msg="",page_num = maxPage)
+            html = template.render(results= results[offset:offset+itemsPerPage-1], msg=msg,page_num = maxPage)
             db.close()
             return html
 
     else:
+        return returnError(u"番号格式不正确")
 
-        return u"番号格式不正确"
 
 @app.route('/top/page=<page>')
 @app.route('/top')
@@ -167,7 +199,8 @@ def actor(id=None,page=None):
     if id==None or not id.isdigit() or len(id)<4:
         # template = env.get_template("search_result.html")
         # html = template.render(results=[], msg="错误演员编号")
-        return u"错误演员编号"
+        return returnError(u"错误演员编号")
+
     elif page==None or not page.isdigit():
         return redirect('/actor/id=%s/page=1'%id, code=302)
     else:
@@ -199,7 +232,28 @@ def actor(id=None,page=None):
             return html
         else:
             db.close()
-            return u"没有 %s"%id
+            return returnError(u"没有 "+id)
+
+@app.route('/actor/page=<page>')
+@app.route('/actor')
+def namebook(page=None):
+    if page == None or  not page.isdigit():
+        return redirect("/actor/page=1", code=302)
+    else:
+        db = connectDB()
+        cur = db.cursor(MySQLdb.cursors.DictCursor)
+        query = "SELECT TABLE_ROWS AS 'rows' from information_schema.TABLES where table_name='stars1'"
+        cur.execute(query)
+        maxPage = int(math.ceil(1. * cur.fetchall()[0]['rows'] / itemsPerPage))
+
+        cur.execute("SELECT * FROM stars1 LIMIT %d OFFSET %d" % (itemsPerPage,itemsPerPage*min([int(page)-1,maxPage-1]) ))
+        results = cur.fetchall()
+
+        # template = env.get_template("search_result.html")
+        # html = template.render(results=results, msg="",page_num=maxPage)
+        db.close()
+        return returnError(u"花名册开发中")
+
 
 if __name__ == "__main__":
     app.run()

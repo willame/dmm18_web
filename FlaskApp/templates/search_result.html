@@ -1,54 +1,65 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-    <style>
+{% extends "base.html" %}
+{% block title%} Title {% endblock %}
+    {% block custom_css %}
         .hover_img a { position:relative; }
         .hover_img a span { position:absolute; display:none; z-index:99; }
         .hover_img a:hover span { display:block;}
         a:hover {
             background-color:red;
         }
-        td {
-        text-align:center;
+        td,th{
+        text-align:left;
         }
 
-
-
-
-    </style>
-</head>
-<body>
+{% endblock%}
+{% block content %}
 <table align='center'>
         <p id="warning" align="center">{{msg}}</p>
-        <tr><th>排序</th><th>品番号</th><th>作品名称</th><!--<th>女优</th>--><th>网络发行日期</th><th>DVD发行日期</th><th>评分</th></tr>
+        <tr><th>排序</th><th>品番号</th><th>作品名称</th><th>女优数量</th><th>网络发行日期</th><th>DVD发行日期</th><th>评分</th></tr>
         {% for info in results %}
             {% set performers = info["performers"].split('|') %}
+
         <tr>
             <td>{{ results.index(info)+1 }}</td>
             <td>
                 <div class="hover_img">
-                    <a href="/video/{{info['cid']}}">{{ info["cid"] }}(显示封面)
+                    <a href="/video/cid={{info['cid']}}">{{ info["cid"] }}(显示封面)
                         <span><img src='{{ info["img"] }}'></span>
                     </a>
                 </div>
             </td>
 
-            <td><a href="/video/{{info['cid']}}">{{info["title"]}}</a> </td>
+            <td><a href="/video/cid={{info['cid']}}">{{info["title"]}}</a> </td>
             <!--<td>
                 {% for performer in performers %}
                 <a href='/actor/id={{performer}}'>{{performer}}</a>
                 {% endfor %}
             </td>-->
-            <td>{{info["delivery_date"]}}</td>
-            <td>{{info["release_date"]}}</td>
+
+            <td>{{performers|length}}</td>
+            {% if info["delivery_date"] == None%}
+                <td>0001-01-01</td>
+            {% else %}
+                <td>{{info["delivery_date"]}}</td>
+            {% endif %}
+
+            {% if info["delivery_date"] == None%}
+                <td>0001-01-01</td>
+            {% else %}
+                <td>{{info["release_date"]}}</td>
+            {% endif %}
+
+
             <td>{{info["rate"]}}</td>
 
         </tr>
+
         {% endfor %}</table>
+        <div align="center">
+        <p>页码</p>
         {% for page in range(1,page_num+1) %}
             <a href="./page={{page}}">{{page}}</a>
         {% endfor %}
-</body>
-</html>
+
+</div>
+{% endblock %}
