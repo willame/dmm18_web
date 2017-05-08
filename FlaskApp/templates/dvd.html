@@ -28,7 +28,7 @@
     margin: 20px auto; /* 15% from the top and centered */
     padding: 20px;
     border: 1px solid #888;
-    width: 50%; /* Could be more or less, depending on screen size */
+    max-width: 800px; /* Could be more or less, depending on screen size */
 }
 
 .modal-body{
@@ -62,11 +62,11 @@
   <!--text-align: center;-->
 <!--}-->
 
-ul.sample-img-row {
+.sample-img-row {
   white-space: nowrap;
 }
 
-ul.sample-img-row, li {
+.sample-img-row, li {
   list-style: none;
   display: inline;
 }
@@ -125,20 +125,20 @@ ul.sample-img-row, li {
 
 {% block sample_imgs%}
 
-
+<div class="row" >
         {% for imgs in sample_imgs %}
 
-                 <ul class="sample-img-row">
+                 <div class="sample-img-row">
                 {% for img in imgs %}
 
-                <li class="sample-img-element"><a href="#" onclick="return false;"><img src="{{img['link']}}" alt="sample_img" class="img_s img-thumbnail" ></a></li>
+                <div class="col-lg-1 col-md-4 col-xs-6  sample-img-element"><a href="#" onclick="return false;"><img src="{{img['link']}}" alt="sample_img" class="img_s img-thumbnail" ></a></div>
 
                     {% endfor %}
-                 </ul>
+                 </div>
 
         {% endfor %}
 
-
+</div>
 
 <!-- The Modal -->
 <div id="myModal" class="modal">
@@ -147,14 +147,27 @@ ul.sample-img-row, li {
   <div class="modal-content">
   <div class="modal-header">
     <span id="close-display" class="close">&times;</span>
-    <p>{{info['title']}}</p>
+    <p id="display-title">{{info['title']}}</p>
       <div class="well">
         <p>广告位</p>
       </div>
   </div>
+<p align="center" id='sample-img-control' style="display:none;">
+    <a href="#" onclick="return false;">
+        <span id="prev-btn" class="glyphicon glyphicon-chevron-left"></span>
+    </a>
+    <a href="#" onclick="return false;">
+        <span id="next-btn" class="glyphicon glyphicon-chevron-right"></span>
+    </a>
+</p>
+
   <div class="modal-body">
-      <div class="content text-center" id="display"></div>
+        <div id="img-control" class="text-center"></div>
+        <p align="center" id="display"> </p>
+
   </div>
+
+
   <div class="modal-footer">
     <div class="well">
         <p>广告位</p>
