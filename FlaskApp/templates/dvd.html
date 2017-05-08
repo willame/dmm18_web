@@ -76,7 +76,7 @@
 
 {% block title_2%}DMM18 LIB{% endblock%}
 {% block info%}
-<p style="font-weight: bold;">{{info["title"]}}</p>
+<h4 style="font-weight: bold;">{{info["title"]}}</h4>
     <table class="table table-bordered">
 
         <tr><td>编号</td><td>{{ info["cid"] }}</td></tr>
@@ -99,7 +99,7 @@
         <tr><td>VR</td><td>{{ info["vr"] }}</td></tr>
         <tr><td>品番号</td><td>{{ info["identifier"] }}</td></tr>
         <tr><td>评分</td><td>{{ info["rate"] }}({{info["rate_num"]}}人打分)</td></tr>
-        <tr><td>样片</td><td>
+        <tr><td>在线样片</td><td>
             <ul>
                 {% for video in sample_videos %}
                 <li><a onclick="return false;" href='{{video["link"]}}' class="sample_video">码率{{video["bitrate"]}}</a></li>
