@@ -11,6 +11,7 @@ from werkzeug.routing import BaseConverter
 from bs4 import BeautifulSoup
 
 from jinja2 import Environment, PackageLoader, select_autoescape
+
 env = Environment(
     loader=PackageLoader('FlaskApp', 'templates'),
     autoescape=select_autoescape(['html', 'xml'])
