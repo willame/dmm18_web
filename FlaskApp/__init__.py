@@ -3,14 +3,27 @@ from flask import Flask,redirect,request,url_for
 import MySQLdb
 import re
 import math
+import time
+from datetime import datetime
+from dateutil.relativedelta import relativedelta
+from werkzeug.routing import BaseConverter
+
+from bs4 import BeautifulSoup
 
 from jinja2 import Environment, PackageLoader, select_autoescape
+
 env = Environment(
     loader=PackageLoader('FlaskApp', 'templates'),
     autoescape=select_autoescape(['html', 'xml'])
 )
 
-itemsPerPage=25
+itemsPerPage=24
+search_depth = 500
+
+popular_indicator = " ORDER BY log(favorite)/log(200)*rate*log(rate_num)/log(50)*(1/LOG10(DATEDIFF(curdate(),release_date))/log10(30)) DESC "
+release_date_indicator = " ORDER BY release_date DESC "
+want_indicator = " ORDER BY favorite DESC "
+
 
 def find_img_src( src):
     if re.search(r'(p[a-z]\.)jpg', src):
@@ -27,13 +40,35 @@ def find_img_src( src):
     else:
         return src.replace('-', 'jp-')
 
+def chunks(l, n):
+    """Yield successive n-sized chunks from l."""
+    for i in range(0, len(l), n):
+        yield l[i:i + n]
+
 def split_lst(lst,n):
     return [ lst[i::n] for i in xrange(n) ]
 
+def returnError(msg):
+    template = env.get_template("error.html")
+    html = template.render(msg=msg)
+    return html
+#
+# VALID_TAGS = ['strong', 'em', 'p', 'ul', 'li', 'br','/','*','%']
+#
+# def sanitize_html(value):
+#
+#     soup = BeautifulSoup(value)
+#
+#     for tag in soup.findAll(True):
+#         if tag.name not in VALID_TAGS:
+#             tag.extract()
+#
+#     return soup.renderContents()
+
 def connectDB():
     # connect to database
-    db = MySQLdb.connect(host="localhost",  # your host, usually localhost
-                         user="root",  # your username
+    db = MySQLdb.connect(host="35.187.124.182",  # your host, usually localhost
+                         user="dmm18",  # your username
                          passwd="666666",  # your password
                          db="dmm18_all",  # name of the data base
                          charset='utf8')  #
@@ -41,19 +76,25 @@ def connectDB():
 
 app = Flask(__name__,static_url_path='/static')
 
+class RegexConverter(BaseConverter):
+    def __init__(self, url_map, *items):
+        super(RegexConverter, self).__init__(url_map)
+        self.regex = items[0]
+app.url_map.converters['regex'] = RegexConverter
+
 app.debug = True
 @app.route('/')
 def index():
-    return app.send_static_file('index.html')
+    # return app.send_static_file('index.html')
+    template = env.get_template("index.html")
+    html = template.render()
+    #
+    return html
 
 @app.route("/table")
 def table():
     # connect to database
-    db = MySQLdb.connect(host="localhost",  # your host, usually localhost
-                         user="root",  # your username
-                         passwd="666666",  # your password
-                         db="dmm18_all",  # name of the data base
-                         charset='utf8')  #
+    db = connectDB()
     cur = db.cursor()
     query2 = "SELECT table_name as 'name',TABLE_ROWS AS 'rows',round(((data_length + index_length) / 1024 / 1024), 2) as `Size in MB` from information_schema.TABLES where table_schema ='dmm18_all'"
     cur.execute(query2)
@@ -64,14 +105,10 @@ def table():
     #
     return html
 
-@app.route('/video/<cid>')
+@app.route('/video/cid=<cid>')
 def dvd(cid):
     # connect to database
-    db = MySQLdb.connect(host="localhost",  # your host, usually localhost
-                         user="root",  # your username
-                         passwd="666666",  # your password
-                         db="dmm18_all",  # name of the data base
-                         charset='utf8')  #
+    db = connectDB()
     cur = db.cursor(MySQLdb.cursors.DictCursor)
 
     # query = "SELECT * FROM dvds WHERE cid =\'%s\'"%cid
@@ -84,58 +121,101 @@ def dvd(cid):
         sample_videos = cur.fetchall()
         cur.execute("SELECT * FROM sample_img_links WHERE cid =\'%s\'" % cid)
         sample_imgs = cur.fetchall()
+
         dvd_js = url_for('static', filename='js/dvd_info.js')
-        html = template.render(info=result[0],img_l = find_img_src(result[0]["img"]),sample_videos = sample_videos,
-                               sample_imgs=sample_imgs,dvd_js = dvd_js)
+        html = template.render(info=result[0],sample_videos = sample_videos,
+                               sample_imgs=chunks(sample_imgs,11),dvd_js = dvd_js,post_img = find_img_src(result[0]['img']))
         db.close()
         return html
     elif len(result)>1:
         db.close()
-        return "duplicate cid"
+        template = env.get_template("error.html")
+        html = template.render(msg="duplicate cid")
+        return html
 
     else:
         db.close()
-        return "no dvd ",cid
+        # template = env.get_template("error.html")
+        # html = template.render(msg="no dvd "+cid)
+        return returnError("no dvd "+cid)
 
+@app.route('/search')
+@app.route('/search/')
+@app.route('/search/key=')
+@app.route('/search/key=<key>/')
 @app.route('/search/key=<key>')
+@app.route('/search/key=<key>/')
+@app.route('/search/key=<key>/page=')
+@app.route('/search/key=<key>/page=/')
 @app.route('/search/key=<key>/page=<page>')
-def search(key,page=None):
+@app.route('/search/key=<key>/page=<page>/')
+@app.route('/search/key=<key>/page=<page>&')
+@app.route('/search/key=<key>/page=<page>&mode=')
+@app.route('/search/key=<key>/page=<page>&mode=/')
+@app.route('/search/key=<key>/page=<page>&mode=<mode>')
+@app.route('/search/key=<key>/page=<page>&mode=<mode>/')
+# @app.route('/regex("search")')
+# @app.route('/regex("search\/?(key[=]?)?\/?(<key>)?\/?(page[=]?)?\/?(<page>)?\/?&?(mode[=]?)?\/?(<mode>)?\/?")')
+def search(key='',page=None, mode=None,indicator_2=None):
 
 
-    if re.search(r'([a-zA-z]+)[-:blank:]*(\d+)',key) and len(key)>=5:
-        letters = re.search(r'([a-zA-z]+)[-:blank:]*(\d+)',key).group(1)
-        numbers = re.search(r'([a-zA-z]+)[-:blank:]*(\d+)',key).group(2)
+    if re.search(r'([a-zA-z]+)[- _\t]*(\d+)',key) and len(key)>=4:
+        letters = re.search(r'([a-zA-z]+)[- _\t]*(\d+)',key).group(1)
+        numbers = re.search(r'([a-zA-z]+)[- _\t]*(\d+)',key).group(2)
         # msg=u"关键字 %s"%key
         # if len(letters)+len(numbers)<5:
         #     msg = u"关键字过短 %s"%key
         if page == None or not page.isdigit():
-            return redirect('/search/key=%s/page=1' % key, code=302)
+            return redirect('/search/key=%s/page=1&mode=' % key, code=302)
         else:
+            maxPage = int(math.ceil(1. * search_depth / itemsPerPage))
             # connect to database
             db = connectDB()
             cur = db.cursor(MySQLdb.cursors.DictCursor)
-            cur.execute("SELECT * FROM dvds WHERE cid REGEXP '.*(%s).*(%s).*' LIMIT 500"%(letters,numbers))
+            indicator = release_date_indicator
+            cur.execute("SELECT * FROM dvds WHERE identifier REGEXP '.*(%s).*(%s).*' %s LIMIT %d "%(letters,numbers,indicator,search_depth))
             results = cur.fetchall()
             maxPage = int(math.ceil(1. * len(results) / itemsPerPage))
-            template = env.get_template("search_result.html")
-            offset = itemsPerPage * min([int(page) - 1, maxPage - 1])
-            html = template.render(results= results[offset:offset+itemsPerPage-1], msg="",page_num = maxPage)
+            if len(results) == 0:
+                msg = u"没有结果"
+                return returnError(msg)
+            else:
+                msg =''
+            if mode=='list':
+                template = env.get_template("search_result.html")
+                offset = itemsPerPage * min([int(page) - 1, maxPage - 1])
+                html = template.render(mode=mode,itemsPerPage=itemsPerPage,results= results[offset:offset+itemsPerPage], msg=msg,page_num = maxPage
+                                       ,current_page = min([int(page), maxPage]))
+            else:
+                template = env.get_template("gallery.html")
+                offset = itemsPerPage * min([int(page) - 1, maxPage - 1])
+                html = template.render(mode=mode,itemsPerPage=itemsPerPage,results=results[offset:offset+itemsPerPage], page_num=maxPage
+                                       , current_page=min([int(page), maxPage]))
             db.close()
             return html
 
     else:
+        return returnError(u"番号格式不正确 %s"%key)
 
-        return u"番号格式不正确"
 
-@app.route('/top/page=<page>')
+
 @app.route('/top')
-def top(page=None):
+@app.route('/top/')
+@app.route('/top/page=')
+@app.route('/top/page=/')
+@app.route('/top/page=<page>')
+@app.route('/top/page=<page>/')
+@app.route('/top/page=<page>&mode=')
+@app.route('/top/page=<page>&mode=/')
+@app.route('/top/page=<page>&mode=<mode>')
+@app.route('/top/page=<page>&mode=<mode>/')
+def top(page=None, indicator_2=None,mode=None):
 
     # itemsPerPage=25
-    maxPage = int(math.ceil(1.*500/itemsPerPage))
+    maxPage = int(math.ceil(1.*search_depth/itemsPerPage))
 
     if page == None or  not page.isdigit():
-        return redirect("/top/page=1", code=302)
+        return redirect("/top/page=1&mode=", code=302)
         # connect to database
         # db = connectDB()
         # cur = db.cursor(MySQLdb.cursors.DictCursor)
@@ -148,11 +228,22 @@ def top(page=None):
     else:
         db = connectDB()
         cur = db.cursor(MySQLdb.cursors.DictCursor)
-        cur.execute("SELECT * FROM dvds ORDER BY rate*rate_num DESC LIMIT %d OFFSET %d" % (itemsPerPage,
-                                                                                           itemsPerPage*min([int(page)-1,maxPage-1]) ))
+        # indicator = "ORDER BY log(favorite)/log(200)*rate*log(rate_num)/log(50)*(1/LOG10(DATEDIFF(curdate(),release_date))/log10(30))"
+        # "WHERE title NOT LIKE '%%限定%%'"
+        indicator = popular_indicator
+        if indicator_2 != None:
+            indicator = indicator_2
+        cur.execute("SELECT * FROM dvds %s LIMIT %d OFFSET %d" % (indicator,itemsPerPage,
+                                                                itemsPerPage * int(min([(int(page)-1),(maxPage-1)]) )))
         results = cur.fetchall()
-        template = env.get_template("search_result.html")
-        html = template.render(results=results, msg="",page_num=maxPage)
+        if mode=='list':
+            template = env.get_template("search_result.html")
+            html = template.render(mode=mode,itemsPerPage=itemsPerPage,results=results, msg="",page_num=maxPage
+                                   , current_page=min([int(page), maxPage]))
+        else:
+            template = env.get_template("gallery.html")
+            html = template.render(mode=mode,itemsPerPage=itemsPerPage,results=results,page_num=maxPage
+                                    , current_page=min([int(page), maxPage]))
         db.close()
         return html
     # else:
@@ -160,14 +251,18 @@ def top(page=None):
     #     # html = template.render(results=[], msg="超出最大页数")
     #     return redirect("/top/page=%d"%maxPage, code=302)
 
-@app.route('/actor/id=<id>/page=<page>')
+
 @app.route('/actor/id=<id>')
+@app.route('/actor/id=<id>/')
+@app.route('/actor/id=<id>/page=<page>')
+@app.route('/actor/id=<id>/page=<page>/')
 def actor(id=None,page=None):
 
     if id==None or not id.isdigit() or len(id)<4:
         # template = env.get_template("search_result.html")
         # html = template.render(results=[], msg="错误演员编号")
-        return u"错误演员编号"
+        return returnError(u"错误演员编号")
+
     elif page==None or not page.isdigit():
         return redirect('/actor/id=%s/page=1'%id, code=302)
     else:
@@ -175,7 +270,7 @@ def actor(id=None,page=None):
         cur = db.cursor(MySQLdb.cursors.DictCursor)
         # print "SELECT * FROM dvds WHERE performers REGEXP \'[|]*%s[|]*\' ORDER BY release_date DESC"%id
         # query = "SELECT ROW_NUMBER() OVER(ORDER BY release_date DESC) AS 'index',* FROM dvds WHERE performers REGEXP \'[|]*%s[|]*\'"
-        cur.execute("SELECT * FROM dvds WHERE performers REGEXP \'[|]*%s[|]*\' ORDER BY release_date DESC"%id)
+        cur.execute("SELECT * FROM dvds WHERE performers REGEXP \'^[|]*%s[|]*\' ORDER BY release_date DESC"%id)
         # print "SELECT * FROM dvds WHERE performers REGEXP \'[|]*%s[|]*\' ORDER BY release_date DESC"%id
         results = cur.fetchall()
 
@@ -194,12 +289,74 @@ def actor(id=None,page=None):
             template = env.get_template("search_result.html")
             offset = itemsPerPage*min([int(page)-1,maxPage-1])
             # print offset
-            html = template.render(results=results[offset:offset+itemsPerPage-1], msg=msg,page_num=maxPage)
+            html = template.render(itemsPerPage=itemsPerPage,results=results[offset:offset+itemsPerPage-1], msg=msg,page_num=maxPage
+                                   , current_page=min([int(page), maxPage]))
             db.close()
             return html
         else:
             db.close()
-            return u"没有 %s"%id
+            return returnError(u"没有 "+id)
+
+
+@app.route('/facebook')
+@app.route('/facebook/')
+@app.route('/facebook/page=')
+@app.route('/facebook/page=/')
+@app.route('/facebook/page=<page>')
+@app.route('/facebook/page=<page>/')
+
+def namebook(page=None):
+    if page == None or  not page.isdigit():
+        return redirect("/facebook/page=1", code=302)
+    else:
+        db = connectDB()
+        cur = db.cursor(MySQLdb.cursors.DictCursor)
+        query = "SELECT TABLE_ROWS AS 'rows' from information_schema.TABLES where table_name='stars1'"
+        cur.execute(query)
+        maxPage = int(math.ceil(1. * cur.fetchall()[0]['rows'] / itemsPerPage))
+
+        cur.execute("SELECT * FROM stars1 LIMIT %d OFFSET %d" % (itemsPerPage,itemsPerPage*min([int(page)-1,maxPage-1]) ))
+        results = cur.fetchall()
+
+        # template = env.get_template("search_result.html")
+        # html = template.render(results=results, msg="",page_num=maxPage)
+        db.close()
+        return returnError(u"花名册开发中")
+
+@app.route('/want')
+@app.route('/want/')
+@app.route('/want/page=')
+@app.route('/want/page=/')
+@app.route('/want/page=<page>')
+@app.route('/want/page=<page>/')
+@app.route('/want/page=<page>&mode=')
+@app.route('/want/page=<page>&mode=/')
+@app.route('/want/page=<page>&mode=<mode>')
+@app.route('/want/page=<page>&mode=<mode>/')
+def want(page=None,mode='gallery'):
+    if page == None or not page.isdigit():
+        return redirect('/want/page=1&mode=gallery')
+    else:
+        time_shift  = datetime.today()+ relativedelta(months=-3)
+        return top(page=page,indicator_2="WHERE release_date>'%s'"%time_shift+want_indicator,mode=mode)
+
+@app.route('/recent')
+@app.route('/recent/')
+@app.route('/recent/page=')
+@app.route('/recent/page=/')
+@app.route('/recent/page=<page>')
+@app.route('/recent/page=<page>/')
+@app.route('/recent/page=<page>&mode=')
+@app.route('/recent/page=<page>&mode=/')
+@app.route('/recent/page=<page>&mode=<mode>')
+@app.route('/recent/page=<page>&mode=<mode>/')
+def recent(page=None,mode='gallery'):
+    if page == None or not page.isdigit():
+        return redirect('/recent/page=1&mode=gallery')
+    else:
+        time_shift  = datetime.today()
+        return top(page=page,indicator_2="WHERE release_date<'%s' "%time_shift+release_date_indicator,mode=mode)
+
 
 if __name__ == "__main__":
     app.run()
