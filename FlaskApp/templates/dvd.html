@@ -7,6 +7,50 @@
     <!--{% endblock %}-->
 
     {% block custom_css_2%}
+/* The Modal (background) */
+.modal {
+    display: none; /* Hidden by default */
+    position: fixed; /* Stay in place */
+    z-index: 1; /* Sit on top */
+    left: 0;
+    top: 0;
+    width: 100%; /* Full width */
+    height: 100%; /* Full height */
+    overflow: auto; /* Enable scroll if needed */
+    background-color: rgb(0,0,0); /* Fallback color */
+    background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+}
+
+/* Modal Content/Box */
+.modal-content {
+
+    background-color: #fefefe;
+    margin: 20px auto; /* 15% from the top and centered */
+    padding: 20px;
+    border: 1px solid #888;
+    width: 50%; /* Could be more or less, depending on screen size */
+}
+
+.modal-body{
+    max-height:80%;
+}
+
+
+
+/* The Close Button */
+.close {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+}
+
+.close:hover,
+.close:focus {
+    color: black;
+    text-decoration: none;
+    cursor: pointer;
+}
 <!--.box {-->
   <!--width: 40%;-->
   <!--margin: 0 auto;-->
@@ -27,72 +71,16 @@ ul.sample-img-row, li {
   display: inline;
 }
 
-.overlay {
-  position: fixed;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  background: rgba(0, 0, 0, 0.7);
-  transition: opacity 500ms;
-  visibility: hidden;
-  opacity: 0;
-}
-.overlay:target {
-  visibility: visible;
-  opacity: 1;
-}
-
-.popup {
-  margin: 70px auto;
-  padding: 20px;
-  background: #fff;
-  border-radius: 5px;
-  width: 700px;
-  position: relative;
-  transition: all 5s ease-in-out;
-}
-
-<!--.popup h2 {-->
-  <!--margin-top: 0;-->
-  <!--color: #333;-->
-  <!--font-family: Tahoma, Arial, sans-serif;-->
-<!--}-->
-.popup .close {
-  position: absolute;
-  top: 20px;
-  right: 30px;
-  transition: all 200ms;
-  font-size: 30px;
-  font-weight: bold;
-  text-decoration: none;
-  color: #333;
-}
-.popup .close:hover {
-  color: red;
-}
-.popup .content {
-  overflow: auto;
-}
-
-@media screen and (max-width: 700px){
-  <!--.box{-->
-    <!--width: 600px;-->
-  <!--}-->
-  .popup{
-    width: 700px;
-  }
-}
-
 {% endblock %}
 
 
 {% block title_2%}DMM18 LIB{% endblock%}
 {% block info%}
+<p style="font-weight: bold;">{{info["title"]}}</p>
+    <table class="table table-bordered">
 
-    <table class="table-bordered">
         <tr><td>编号</td><td>{{ info["cid"] }}</td></tr>
-        <tr><td>喜爱人数</td><td>{{ info["favorite"] }}</td></tr>
+        <tr><td>收藏</td><td>{{ info["favorite"] }}</td></tr>
         <tr><td>类型</td><td>{{ info["dvd_type"] }}</td></tr>
         <tr><td>网络发行日期</td><td>{{ info["delivery_date"] }}</td></tr>
         <tr><td>DVD发行日期</td><td>{{ info["release_date"] }}</td></tr>
@@ -122,8 +110,8 @@ ul.sample-img-row, li {
     </table>
 {%endblock%}
 {% block post_img%}
- <p style="font-weight: bold;">{{info["title"]}}</p>
-    <a href="#" onclick="return false;"><img src="{{post_img}}" alt="post_l" width="100%"></a>
+
+    <img src="{{post_img}}" alt="post_l"  width="100%" style="max-height:700px;" class="img-responsive">
 {% endblock%}
 
      <!--<table align='center'>-->
@@ -137,24 +125,54 @@ ul.sample-img-row, li {
 
 {% block sample_imgs%}
 
-<ul class="sample-img-row">
-        {% for img in sample_imgs %}
-        <li class="sample-img-element"><a href="#" onclick="return false;"><img src="{{img['link']}}" alt="sample_img" class="img_s" ></a></li>
+
+        {% for imgs in sample_imgs %}
+
+                 <ul class="sample-img-row">
+                {% for img in imgs %}
+
+                <li class="sample-img-element"><a href="#" onclick="return false;"><img src="{{img['link']}}" alt="sample_img" class="img_s img-thumbnail" ></a></li>
+
+                    {% endfor %}
+                 </ul>
+
         {% endfor %}
 
-</ul>
 
 
+<!-- The Modal -->
+<div id="myModal" class="modal">
 
-<div id="popup1" class="overlay">
-	<div class="popup">
-		<h2>Here i am</h2>
-		<a class="close" href="#" onclick="document.getElementById('display').innerHTML='';">&times;</a>
-		<div class="content" id="display">
-
-		</div>
-	</div>
+  <!-- Modal content -->
+  <div class="modal-content">
+  <div class="modal-header">
+    <span id="close-display" class="close">&times;</span>
+    <p>{{info['title']}}</p>
+      <div class="well">
+        <p>广告位</p>
+      </div>
+  </div>
+  <div class="modal-body">
+      <div class="content text-center" id="display"></div>
+  </div>
+  <div class="modal-footer">
+    <div class="well">
+        <p>广告位</p>
+      </div>
+  </div>
 </div>
+
+</div>
+
+<!--<div id="popup1" class="overlay">-->
+	<!--<div class="popup">-->
+		<!--<h2>Here i am</h2>-->
+		<!--<a class="close" href="#" onclick="document.getElementById('display').innerHTML='';">&times;</a>-->
+		<!--<div class="content" id="display">-->
+
+		<!--</div>-->
+	<!--</div>-->
+<!--</div>-->
 
     {% endblock %}
 

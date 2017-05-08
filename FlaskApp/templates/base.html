@@ -7,8 +7,20 @@
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <script>
+    $(document).ready(function() {
+        $("#search_field").keyup(function(event){
+                if(event.keyCode == 13){
+                        $("#search_btn").click();
+                     }
+         });
+
+    });
+
+    </script>
 	{% block custom_js%}{%endblock%}
   <style>
+
     /* Remove the navbar's default margin-bottom and rounded borders */
     .navbar {
       margin-bottom: 0;
@@ -31,7 +43,9 @@
       color: white;
       padding: 15px;
 
+
     }
+
     footer a{
     	color:white;
     }
@@ -39,6 +53,7 @@
 	footer div{
 		text-align:center;
 	}
+
     /* On small screens, set height to 'auto' for sidenav and grid */
     @media screen and (max-width: 767px) {
       .sidenav {
@@ -51,7 +66,7 @@
    {% block custom_css_2 %}{% endblock %}
   </style>
 </head>
-<body>
+<body style="padding-bottom:70px;">
 
 <nav class="navbar navbar-inverse">
   <div class="container-fluid">
@@ -68,6 +83,16 @@
         <li class="active"><a href="/">主页</a></li>
         <li><a href="#">关于</a></li>
         <li><a href="#">联系</a></li>
+           <li style="padding-top:7px;">
+
+                  <input align="center" class="form-control" id="search_field" type="text" name="key">
+           </li> <li style="padding-top:7px;">
+                   <input id="search_btn" type="submit" class='btn' value="搜索"  onclick="window.location='/search/key='+document.getElementById('search_field').value;">
+
+
+
+           </li>
+
       </ul>
 		{%block custom_nav%}{% endblock%}
       <ul class="nav navbar-nav navbar-right">
@@ -76,44 +101,50 @@
     </div>
   </div>
 </nav>
-<div class="container-fluid text-center">
+
 
 	<div class="well">
         <p>广告位</p>
-      </div></div>
+      </div>
 <div class="container-fluid text-center">
 
   <div class="row content">
-    <div class="col-sm-2 sidenav">
-      <p><a href="#">Link</a></p>
-      <p><a href="#">Link</a></p>
-      <p><a href="#">Link</a></p>
+    <div class="col-sm-1 sidenav">
+       <h4> <a href="/top/page=1&mode=">热门影片</a></h4>
+        <h4><a href="/want/page=1&mode=">最想要的影片</a></h4>
+        <h4><a href="/recent/page=1">最新影片</a></h4>
+        <h4><a href="/facebook/page=1">女优花名册</a></h4>
+
     </div>
     <div class=" col-sm-10 text-left">
 
 
-            <div class="row content">
 
-                 {% block content%}{% endblock %}
-            </div>
+
+                 {% block content%}
+
+        {% endblock %}
+
 
 
 
 
     </div>
-    <!--<div class="col-sm-1 sidenav">-->
-      <!--<div class="well">-->
-        <!--<p>广告位</p>-->
-      <!--</div>-->
-      <!--<div class="well">-->
-        <!--<p>广告位</p>-->
-      <!--</div>-->
-    <!--</div>-->
+<div class="col-sm-1 sidenav">
+      <div class="well">
+        <p>广告位</p>
+      </div>
+      <div class="well">
+        <p>广告位</p>
+      </div>
+    </div>
   </div>
 
 </div>
 
-<footer class="container-fluid text-center">
+<!--<div class="navbar-fixed-bottom">-->
+
+    <footer class="text-center footer navbar navbar-fixed-bottom">
 	<div>
   		<a href="/">主页</a>|
 		<a href="#">关于</a> |
@@ -123,6 +154,9 @@
 		<a href="#">联络</a>
 	</div>
 </footer>
+
+<!--</div>-->
+
 
 </body>
 </html>

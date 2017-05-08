@@ -1,31 +1,31 @@
 {% extends "base.html" %}
 {% block title%} Title {% endblock %}
-    {% block custom_css %}
-        .hover_img a { position:relative; }
-        .hover_img a span { position:absolute; display:none; z-index:99; }
-        .hover_img a:hover span { display:block;}
-
-        td,th{
-        text-align:left;
-        }
-        li {
+{% block custom_css %}
+li {
             list-style: none;
             display: inline;
         }
+
 {% endblock%}
 {% block content %}
 <div class="container-fluid text-center">
-    <nav aria-label="Page navigation example">
+<nav aria-label="Page navigation example" >
+
+
+
+
+
+
     <ul class="pagination">
         <li>
-             <a class="page-link" href="../page={{current_page}}&mode=gallery" ><span class="badge">缩图</span></a>
+            <a class="page-link" href="../page={{current_page}}&mode=list" ><span class="badge">列表</span></a>
         </li>
         {%set next_page=[current_page+1,page_num]|sort|first%}
         {%set prev_page=[current_page-1,1]|sort(reverse=True)|first%}
 
             {% if current_page >1%}
                    <li class="page-item">  <a class="page-link" href="../page={{prev_page}}&mode={{mode}}">前一页</a></li>
-            {%else%}
+{%else%}
                     <li class="page-item">  <a class="page-link" >前一页</a></li>
             {%endif%}
 
@@ -44,96 +44,65 @@
         {% if current_page < page_num%}
                   <li class="page-item">
             <a class="page-link" href="../page={{next_page}}&mode={{mode}}">后一页</a></li>
-        {%else%}
+         {%else%}
                     <li class="page-item">  <a class="page-link" >后一页</a></li>
             {%endif%}
 
 
 
     </ul>
+
     </nav>
+</div>
+<div class="row">
+     {% set offset=(current_page-1)*itemsPerPage%}
+    {% for info in results %}
 
-
-
-
-
-    <p id="warning" align="center">{{msg}}</p>
-<table align='left' class="table">
-
-       <tr>
-           <th>排序</th>
-        <th>品番号</th>
-        <th>作品名称</th>
-        <th>女优数量</th>
-        <th>想要</th>
-        <th>网络发行日期</th>
-        <th>DVD发行日期</th>
-        <th>评分</th>
-
-       </tr>
-
-
-        {% set offset=(current_page-1)*itemsPerPage%}
-
-        {% for info in results %}
-            {% set performers = info["performers"].split('|') %}
-
-        <tr>
-            {%if offset+results.index(info)+1 < 100%}
-                <td><span class="badge" style="background-color:red;">{{ offset+results.index(info)+1 }}</span></td>
+            <div class="col-lg-2 col-md-4 col-xs-6 thumb text-left">
+                <a class="thumbnail" href="/video/cid={{info['cid']}}">
+                    <img height = "100%" class="  img-responsive" src="{{info['img']}}" alt="">
+                    <ul>
+                        <li>
+                                {%if offset+results.index(info)+1 < 100%}
+                <span class="badge" style="background-color:red;">{{ offset+results.index(info)+1 }}</span>
             {%else%}
-                <td><span class="badge" >{{ offset+results.index(info)+1 }}</span></td>
+                <span class="badge" >{{ offset+results.index(info)+1 }}</span>
             {%endif%}
 
-            <td>
-                <div class="hover_img">
-                    <a href="/video/cid={{info['cid']}}">{{ info["cid"] }}(显示封面)
-                        <span><img src='{{ info["img"] }}'></span>
-                    </a>
-                </div>
-            </td>
-
-            <td><a href="/video/cid={{info['cid']}}">{{info["title"]}}</a> </td>
-            <!--<td>
-                {% for performer in performers %}
-                <a href='/actor/id={{performer}}'>{{performer}}</a>
-                {% endfor %}
-            </td>-->
-
-            <td>{{performers|length}}</td>
-            <td>{{info["favorite"]}}</td>
-            {% if info["delivery_date"] == None%}
-                <td>0001-01-01</td>
-            {% else %}
-                <td>{{info["delivery_date"]}}</td>
-            {% endif %}
-
-            {% if info["delivery_date"] == None%}
-                <td>0001-01-01</td>
-            {% else %}
-                <td>{{info["release_date"]}}</td>
-            {% endif %}
 
 
-            <td>{{info["rate"]}}</td>
+                        </li>
 
-        </tr>
+                        <li><span class="badge"> {{info['rate']}}</span></li>
+                        <li style="font-weight: bold;">{{info["identifier"]}}</li>
 
-        {% endfor %}
-</table>
+                    </ul>
+                <p align="center">
+                    <span class="label label-default"> {{info['release_date']}}</span><span class="label label-default">{{info['favorite']}}人收藏</span>
+                </p>
 
 
 
+                </a>
+
+            </div>
 
 
-    <nav aria-label="Page navigation example">
+    {% endfor%}
+
+
+</div>
+
+
+<div class="container-fluid text-center">
+<nav aria-label="Page navigation example">
     <ul class="pagination">
         {%set next_page=[current_page+1,page_num]|sort|first%}
         {%set prev_page=[current_page-1,1]|sort(reverse=True)|first%}
 
             {% if current_page >1%}
                    <li class="page-item">  <a class="page-link" href="../page={{prev_page}}&mode={{mode}}">前一页</a></li>
-            {%else%}
+{%else%}
                     <li class="page-item">  <a class="page-link" >前一页</a></li>
             {%endif%}
 
@@ -152,7 +121,7 @@
         {% if current_page < page_num%}
                   <li class="page-item">
             <a class="page-link" href="../page={{next_page}}&mode={{mode}}">后一页</a></li>
-        {%else%}
+         {%else%}
                     <li class="page-item">  <a class="page-link" >后一页</a></li>
             {%endif%}
 
@@ -160,8 +129,7 @@
 
     </ul>
     </nav>
-
-
-
 </div>
-{% endblock %}
+
+
+{% endblock%}
