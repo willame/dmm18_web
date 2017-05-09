@@ -80,14 +80,17 @@
     </div>
     <div class="collapse navbar-collapse" id="myNavbar">
       <ul class="nav navbar-nav">
-        <li class="active"><a href="/">主页</a></li>
+        <li class="active"><a href="/"><span class="glyphicon glyphicon-home"></span> 主页</a></li>
         <li><a href="#">关于</a></li>
         <li><a href="#">联系</a></li>
            <li style="padding-top:7px;">
 
-                  <input align="center" class="form-control" id="search_field" type="text" name="key">
+                  <input align="center" class="form-control" id="search_field" type="text" placeholder="格式 snis-800">
            </li> <li style="padding-top:7px;">
-                   <input id="search_btn" type="submit" class='btn' value="搜索"  onclick="window.location='/search/key='+document.getElementById('search_field').value;">
+          <button id="search_btn" class='btn'   onclick="window.location='/search/key='+document.getElementById('search_field').value;">
+              <span class="glyphicon glyphicon-search"></span>搜索
+
+          </button>
 
 
 
@@ -97,6 +100,7 @@
 		{%block custom_nav%}{% endblock%}
       <ul class="nav navbar-nav navbar-right">
         <li><a href="#"><span class="glyphicon glyphicon-log-in"></span> 登录</a></li>
+          <li><a href="#"><span class="glyphicon glyphicon-log-in"></span> 论坛</a></li>
       </ul>
     </div>
   </div>
@@ -132,7 +136,7 @@
     </div>
 <div class="col-sm-1 sidenav">
       <div class="well">
-        <p>广告位</p>
+        <p>快速评分栏</p>
       </div>
       <div class="well">
         <p>广告位</p>
