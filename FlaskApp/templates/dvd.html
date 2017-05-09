@@ -74,7 +74,7 @@
 {% endblock %}
 
 
-{% block title_2%}DMM18 LIB{% endblock%}
+{% block title_2%}{{info["cid"]}}{% endblock%}
 {% block info%}
 <h4 style="font-weight: bold;">{{info["title"]}}</h4>
     <table class="table table-bordered">
@@ -88,7 +88,7 @@
         <tr><td>女优</td><td>
             {% set performers = info["performers"].split('|') %}
             {% for performer in performers %}
-                <a href='/actor/id={{performer}}'>{{performer}}</a>
+                <a href='/actor/id={{performer}}/page=1/mode=gallery/'>{{performer}}</a>
             {% endfor %}
         </td></tr>
         <tr><td>导演</td><td>{{ info["director"] }}</td></tr>

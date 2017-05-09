@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block title%} Title {% endblock %}
+{% block title%}EasyJAV123{% endblock %}
 {% block custom_css %}
 li {
             list-style: none;
@@ -9,6 +9,9 @@ li {
 {% endblock%}
 {% block content %}
 <div class="container-fluid text-center">
+    <h2 class="page-link" align="left">
+            {{title_2}}
+        </h2>
 <nav aria-label="Page navigation example" >
 
 
@@ -18,13 +21,13 @@ li {
 
     <ul class="pagination">
         <li>
-            <a class="page-link" href="../page={{current_page}}&mode=list" ><span class="badge">列表</span></a>
+            <a class="page-link" href="../../page={{current_page}}/mode=list" ><span class="badge">列表</span></a>
         </li>
         {%set next_page=[current_page+1,page_num]|sort|first%}
         {%set prev_page=[current_page-1,1]|sort(reverse=True)|first%}
 
             {% if current_page >1%}
-                   <li class="page-item">  <a class="page-link" href="../page={{prev_page}}&mode={{mode}}">前一页</a></li>
+                   <li class="page-item">  <a class="page-link" href="../../page={{prev_page}}/mode={{mode}}">前一页</a></li>
 {%else%}
                     <li class="page-item">  <a class="page-link" >前一页</a></li>
             {%endif%}
@@ -37,13 +40,13 @@ li {
                     <a class="page-link" tabindex="-1">{{page}}</a>
                     </li>
             {% else %}
-                <li class="page-item"><a class="page-link"  href="../page={{page}}&mode={{mode}}">{{page}}</a></li>
+                <li class="page-item"><a class="page-link"  href="../../page={{page}}/mode={{mode}}">{{page}}</a></li>
             {%endif%}
 
         {% endfor %}
         {% if current_page < page_num%}
                   <li class="page-item">
-            <a class="page-link" href="../page={{next_page}}&mode={{mode}}">后一页</a></li>
+            <a class="page-link" href="../../page={{next_page}}/mode={{mode}}">后一页</a></li>
          {%else%}
                     <li class="page-item">  <a class="page-link" >后一页</a></li>
             {%endif%}
@@ -102,7 +105,7 @@ li {
         {%set prev_page=[current_page-1,1]|sort(reverse=True)|first%}
 
             {% if current_page >1%}
-                   <li class="page-item">  <a class="page-link" href="../page={{prev_page}}&mode={{mode}}">前一页</a></li>
+                   <li class="page-item">  <a class="page-link" href="../../page={{prev_page}}/mode={{mode}}">前一页</a></li>
 {%else%}
                     <li class="page-item">  <a class="page-link" >前一页</a></li>
             {%endif%}
@@ -115,13 +118,14 @@ li {
                     <a class="page-link" tabindex="-1">{{page}}</a>
                     </li>
             {% else %}
-                <li class="page-item"><a class="page-link"  href="../page={{page}}&mode={{mode}}">{{page}}</a></li>
+
+                <li class="page-item"><a class="page-link"  href="../../page={{page}}/mode={{mode}}">{{page}}</a></li>
             {%endif%}
 
         {% endfor %}
         {% if current_page < page_num%}
                   <li class="page-item">
-            <a class="page-link" href="../page={{next_page}}&mode={{mode}}">后一页</a></li>
+            <a class="page-link" href="../../page={{next_page}}/mode={{mode}}">后一页</a></li>
          {%else%}
                     <li class="page-item">  <a class="page-link" >后一页</a></li>
             {%endif%}

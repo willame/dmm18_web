@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="bda7c893-d728-4134-9101-75abe3959d39" name="Default" comment="" />
+    <list default="true" id="bda7c893-d728-4134-9101-75abe3959d39" name="Default" comment="">
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
+    </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -21,9 +23,10 @@
       <file leaf-file-name="__init__.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/FlaskApp/__init__.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-1668">
-              <caret line="158" column="57" lean-forward="true" selection-start-line="158" selection-start-column="57" selection-end-line="158" selection-end-column="57" />
+            <state relative-caret-position="528">
+              <caret line="92" column="0" lean-forward="true" selection-start-line="92" selection-start-column="0" selection-end-line="92" selection-end-column="0" />
               <folding>
+                <element signature="e#15#63#0" expanded="true" />
                 <marker date="1494319363000" expanded="true" signature="2918:3100" ph="SELECT table... TABLES" />
                 <marker date="1494319363000" expanded="true" signature="3497:3533" ph="SELECT * FRO... dvds" />
                 <marker date="1494319363000" expanded="true" signature="3661:3711" ph="SELECT * FRO... sample_video_links" />
@@ -40,6 +43,11 @@
         </entry>
       </file>
     </leaf>
+  </component>
+  <component name="FindInProjectRecents">
+    <findStrings>
+      <find>env</find>
+    </findStrings>
   </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -344,7 +352,9 @@
     <option name="myLimit" value="2678400000" />
   </component>
   <component name="XDebuggerManager">
-    <breakpoint-manager />
+    <breakpoint-manager>
+      <option name="time" value="1" />
+    </breakpoint-manager>
     <watches-manager />
   </component>
   <component name="editorHistoryManager">
@@ -353,6 +363,7 @@
         <state relative-caret-position="0">
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding>
+            <element signature="e#15#63#0" expanded="true" />
             <marker date="1494319363000" expanded="true" signature="2918:3100" ph="SELECT table... TABLES" />
             <marker date="1494319363000" expanded="true" signature="3497:3533" ph="SELECT * FRO... dvds" />
             <marker date="1494319363000" expanded="true" signature="3661:3711" ph="SELECT * FRO... sample_video_links" />
@@ -369,9 +380,10 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/FlaskApp/__init__.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-1668">
-          <caret line="158" column="57" lean-forward="true" selection-start-line="158" selection-start-column="57" selection-end-line="158" selection-end-column="57" />
+        <state relative-caret-position="528">
+          <caret line="92" column="0" lean-forward="true" selection-start-line="92" selection-start-column="0" selection-end-line="92" selection-end-column="0" />
           <folding>
+            <element signature="e#15#63#0" expanded="true" />
             <marker date="1494319363000" expanded="true" signature="2918:3100" ph="SELECT table... TABLES" />
             <marker date="1494319363000" expanded="true" signature="3497:3533" ph="SELECT * FRO... dvds" />
             <marker date="1494319363000" expanded="true" signature="3661:3711" ph="SELECT * FRO... sample_video_links" />

@@ -20,7 +20,7 @@ env = Environment(
 itemsPerPage=24
 search_depth = 500
 
-popular_indicator = " ORDER BY log(favorite)/log(200)*rate*log(rate_num)/log(50)*(1/LOG10(DATEDIFF(curdate(),release_date))/log10(30)) DESC "
+popular_indicator = " ORDER BY log(favorite)/log(100)*rate*log10(rate_num)/log10(DATEDIFF(curdate(),release_date)) DESC "
 release_date_indicator = " ORDER BY release_date DESC "
 want_indicator = " ORDER BY favorite DESC "
 
@@ -89,9 +89,9 @@ def index():
     template = env.get_template("index.html")
     html = template.render()
     #
-    return html
+    return re
 
-@app.route("/table")
+@app.route("/table/")
 def table():
     # connect to database
     db = connectDB()
@@ -105,7 +105,7 @@ def table():
     #
     return html
 
-@app.route('/video/cid=<cid>')
+@app.route('/video/cid=<cid>/')
 def dvd(cid):
     # connect to database
     db = connectDB()
@@ -139,34 +139,25 @@ def dvd(cid):
         # html = template.render(msg="no dvd "+cid)
         return returnError("no dvd "+cid)
 
-@app.route('/search')
+
 @app.route('/search/')
-@app.route('/search/key=')
 @app.route('/search/key=<key>/')
-@app.route('/search/key=<key>')
-@app.route('/search/key=<key>/')
-@app.route('/search/key=<key>/page=')
-@app.route('/search/key=<key>/page=/')
-@app.route('/search/key=<key>/page=<page>')
 @app.route('/search/key=<key>/page=<page>/')
-@app.route('/search/key=<key>/page=<page>&')
-@app.route('/search/key=<key>/page=<page>&mode=')
-@app.route('/search/key=<key>/page=<page>&mode=/')
-@app.route('/search/key=<key>/page=<page>&mode=<mode>')
-@app.route('/search/key=<key>/page=<page>&mode=<mode>/')
+@app.route('/search/key=<key>/page=<page>/mode=<mode>/')
+
 # @app.route('/regex("search")')
 # @app.route('/regex("search\/?(key[=]?)?\/?(<key>)?\/?(page[=]?)?\/?(<page>)?\/?&?(mode[=]?)?\/?(<mode>)?\/?")')
 def search(key='',page=None, mode=None,indicator_2=None):
 
 
-    if re.search(r'([a-zA-z]+)[- _\t]*(\d+)',key) and len(key)>=4:
+    if re.search(r'([a-zA-z]+)[- _\t]*(\d+)',key) and len(key)>=4 and len<20:
         letters = re.search(r'([a-zA-z]+)[- _\t]*(\d+)',key).group(1)
         numbers = re.search(r'([a-zA-z]+)[- _\t]*(\d+)',key).group(2)
         # msg=u"关键字 %s"%key
         # if len(letters)+len(numbers)<5:
         #     msg = u"关键字过短 %s"%key
         if page == None or not page.isdigit():
-            return redirect('/search/key=%s/page=1&mode=' % key, code=302)
+            return redirect('/search/key=%s/page=1/mode=gallery/' % key, code=302)
         else:
             maxPage = int(math.ceil(1. * search_depth / itemsPerPage))
             # connect to database
@@ -184,12 +175,12 @@ def search(key='',page=None, mode=None,indicator_2=None):
             if mode=='list':
                 template = env.get_template("search_result.html")
                 offset = itemsPerPage * min([int(page) - 1, maxPage - 1])
-                html = template.render(mode=mode,itemsPerPage=itemsPerPage,results= results[offset:offset+itemsPerPage], msg=msg,page_num = maxPage
+                html = template.render(title_2=u'搜索 '+key,mode=mode,itemsPerPage=itemsPerPage,results= results[offset:offset+itemsPerPage], msg=msg,page_num = maxPage
                                        ,current_page = min([int(page), maxPage]))
             else:
                 template = env.get_template("gallery.html")
                 offset = itemsPerPage * min([int(page) - 1, maxPage - 1])
-                html = template.render(mode=mode,itemsPerPage=itemsPerPage,results=results[offset:offset+itemsPerPage], page_num=maxPage
+                html = template.render(title_2=u'搜索 '+key,mode=mode,itemsPerPage=itemsPerPage,results=results[offset:offset+itemsPerPage], page_num=maxPage
                                        , current_page=min([int(page), maxPage]))
             db.close()
             return html
@@ -199,17 +190,13 @@ def search(key='',page=None, mode=None,indicator_2=None):
 
 
 
-@app.route('/top')
+
 @app.route('/top/')
-@app.route('/top/page=')
 @app.route('/top/page=/')
-@app.route('/top/page=<page>')
 @app.route('/top/page=<page>/')
-@app.route('/top/page=<page>&mode=')
-@app.route('/top/page=<page>&mode=/')
-@app.route('/top/page=<page>&mode=<mode>')
-@app.route('/top/page=<page>&mode=<mode>/')
-def top(page=None, indicator_2=None,mode=None):
+@app.route('/top/page=<page>/mode=/')
+@app.route('/top/page=<page>/mode=<mode>/')
+def top(page=None, indicator_2=None,mode=None,title_2=u"热门影片"):
 
     # itemsPerPage=25
     maxPage = int(math.ceil(1.*search_depth/itemsPerPage))
@@ -238,11 +225,11 @@ def top(page=None, indicator_2=None,mode=None):
         results = cur.fetchall()
         if mode=='list':
             template = env.get_template("search_result.html")
-            html = template.render(mode=mode,itemsPerPage=itemsPerPage,results=results, msg="",page_num=maxPage
+            html = template.render(title_2=title_2,mode=mode,itemsPerPage=itemsPerPage,results=results, msg="",page_num=maxPage
                                    , current_page=min([int(page), maxPage]))
         else:
             template = env.get_template("gallery.html")
-            html = template.render(mode=mode,itemsPerPage=itemsPerPage,results=results,page_num=maxPage
+            html = template.render(title_2=title_2,mode=mode,itemsPerPage=itemsPerPage,results=results,page_num=maxPage
                                     , current_page=min([int(page), maxPage]))
         db.close()
         return html
@@ -252,11 +239,10 @@ def top(page=None, indicator_2=None,mode=None):
     #     return redirect("/top/page=%d"%maxPage, code=302)
 
 
-@app.route('/actor/id=<id>')
 @app.route('/actor/id=<id>/')
-@app.route('/actor/id=<id>/page=<page>')
 @app.route('/actor/id=<id>/page=<page>/')
-def actor(id=None,page=None):
+@app.route('/actor/id=<id>/page=<page>/mode=<mode>/')
+def actor(id=None,page=None,mode='gallery'):
 
     if id==None or not id.isdigit() or len(id)<4:
         # template = env.get_template("search_result.html")
@@ -270,7 +256,7 @@ def actor(id=None,page=None):
         cur = db.cursor(MySQLdb.cursors.DictCursor)
         # print "SELECT * FROM dvds WHERE performers REGEXP \'[|]*%s[|]*\' ORDER BY release_date DESC"%id
         # query = "SELECT ROW_NUMBER() OVER(ORDER BY release_date DESC) AS 'index',* FROM dvds WHERE performers REGEXP \'[|]*%s[|]*\'"
-        cur.execute("SELECT * FROM dvds WHERE performers REGEXP \'^[|]*%s[|]*\' ORDER BY release_date DESC"%id)
+        cur.execute("SELECT * FROM dvds WHERE performers REGEXP \'^[|]*%s[|]*\' %s"%(id,popular_indicator))
         # print "SELECT * FROM dvds WHERE performers REGEXP \'[|]*%s[|]*\' ORDER BY release_date DESC"%id
         results = cur.fetchall()
 
@@ -285,12 +271,19 @@ def actor(id=None,page=None):
             if len(name) == 1:
                 msg = u"%s (%s)"%(name[0]["name1"],name[0]["name2"])
             else:
-                msg = u"未知"
-            template = env.get_template("search_result.html")
-            offset = itemsPerPage*min([int(page)-1,maxPage-1])
-            # print offset
-            html = template.render(itemsPerPage=itemsPerPage,results=results[offset:offset+itemsPerPage-1], msg=msg,page_num=maxPage
-                                   , current_page=min([int(page), maxPage]))
+                msg = u"未知姓名"
+            if mode=='list':
+                template = env.get_template("search_result.html")
+                offset = itemsPerPage*min([int(page)-1,maxPage-1])
+                # print offset
+                html = template.render(mode=mode,itemsPerPage=itemsPerPage,results=results[offset:offset+itemsPerPage], title_2=msg,page_num=maxPage
+                                       , current_page=min([int(page), maxPage]))
+            else:
+                template = env.get_template("gallery.html")
+                offset = itemsPerPage * min([int(page) - 1, maxPage - 1])
+                html = template.render(title_2=msg,mode=mode, itemsPerPage=itemsPerPage,
+                                       results=results[offset:offset + itemsPerPage], page_num=maxPage
+                                       , current_page=min([int(page), maxPage]))
             db.close()
             return html
         else:
@@ -298,14 +291,12 @@ def actor(id=None,page=None):
             return returnError(u"没有 "+id)
 
 
-@app.route('/facebook')
+
 @app.route('/facebook/')
-@app.route('/facebook/page=')
 @app.route('/facebook/page=/')
-@app.route('/facebook/page=<page>')
 @app.route('/facebook/page=<page>/')
 
-def namebook(page=None):
+def facebook(page=None):
     if page == None or  not page.isdigit():
         return redirect("/facebook/page=1", code=302)
     else:
@@ -323,40 +314,35 @@ def namebook(page=None):
         db.close()
         return returnError(u"花名册开发中")
 
-@app.route('/want')
+
 @app.route('/want/')
-@app.route('/want/page=')
-@app.route('/want/page=/')
-@app.route('/want/page=<page>')
+
 @app.route('/want/page=<page>/')
-@app.route('/want/page=<page>&mode=')
-@app.route('/want/page=<page>&mode=/')
-@app.route('/want/page=<page>&mode=<mode>')
-@app.route('/want/page=<page>&mode=<mode>/')
+
+@app.route('/want/page=<page>/mode=<mode>/')
 def want(page=None,mode='gallery'):
     if page == None or not page.isdigit():
-        return redirect('/want/page=1&mode=gallery')
+        return redirect('/want/page=1&mode=gallery/')
     else:
         time_shift  = datetime.today()+ relativedelta(months=-3)
-        return top(page=page,indicator_2="WHERE release_date>'%s'"%time_shift+want_indicator,mode=mode)
+        return top(page=page,indicator_2="WHERE release_date>'%s'"%time_shift+want_indicator,mode=mode,title_2=u"最想要的影片")
 
-@app.route('/recent')
+
 @app.route('/recent/')
-@app.route('/recent/page=')
-@app.route('/recent/page=/')
-@app.route('/recent/page=<page>')
+
 @app.route('/recent/page=<page>/')
-@app.route('/recent/page=<page>&mode=')
-@app.route('/recent/page=<page>&mode=/')
-@app.route('/recent/page=<page>&mode=<mode>')
-@app.route('/recent/page=<page>&mode=<mode>/')
+
+@app.route('/recent/page=<page>/mode=<mode>/')
 def recent(page=None,mode='gallery'):
     if page == None or not page.isdigit():
-        return redirect('/recent/page=1&mode=gallery')
+        return redirect('/recent/page=1&mode=gallery/')
     else:
         time_shift  = datetime.today()
-        return top(page=page,indicator_2="WHERE release_date<'%s' "%time_shift+release_date_indicator,mode=mode)
+        return top(page=page,indicator_2="WHERE release_date<'%s' "%time_shift+release_date_indicator,mode=mode,title_2=u"最新影片")
 
+@app.route('/develop/')
+def developing():
+    return returnError(u"开发中")
 
 if __name__ == "__main__":
     app.run()
