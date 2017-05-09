@@ -81,13 +81,13 @@
     <div class="collapse navbar-collapse" id="myNavbar">
       <ul class="nav navbar-nav">
         <li class="active"><a href="/"><span class="glyphicon glyphicon-home"></span> 主页</a></li>
-        <li><a href="#">关于</a></li>
-        <li><a href="#">联系</a></li>
+        <li><a href="/develop/">关于</a></li>
+        <li><a href="/develop/">联系</a></li>
            <li style="padding-top:7px;">
 
                   <input align="center" class="form-control" id="search_field" type="text" placeholder="格式 snis-800">
            </li> <li style="padding-top:7px;">
-          <button id="search_btn" class='btn'   onclick="window.location='/search/key='+document.getElementById('search_field').value;">
+          <button id="search_btn" class='btn'   onclick="window.location='/search/key='+document.getElementById('search_field').value+'/';">
               <span class="glyphicon glyphicon-search"></span>搜索
 
           </button>
@@ -99,8 +99,8 @@
       </ul>
 		{%block custom_nav%}{% endblock%}
       <ul class="nav navbar-nav navbar-right">
-        <li><a href="#"><span class="glyphicon glyphicon-log-in"></span> 登录</a></li>
-          <li><a href="#"><span class="glyphicon glyphicon-log-in"></span> 论坛</a></li>
+        <li><a href="/develop/"><span class="glyphicon glyphicon-log-in"></span> 登录</a></li>
+          <li><a href="/develop/"><span class="glyphicon glyphicon-log-in"></span> 论坛</a></li>
       </ul>
     </div>
   </div>
@@ -114,8 +114,8 @@
 
   <div class="row content">
     <div class="col-sm-1 sidenav">
-       <h4> <a href="/top/page=1&mode=">热门影片</a></h4>
-        <h4><a href="/want/page=1&mode=">最想要的影片</a></h4>
+       <h4> <a href="/top/page=1/mode=gallery/">热门影片</a></h4>
+        <h4><a href="/want/page=1/mode=gallery/">最想要的影片</a></h4>
         <h4><a href="/recent/page=1">最新影片</a></h4>
         <h4><a href="/facebook/page=1">女优花名册</a></h4>
 
