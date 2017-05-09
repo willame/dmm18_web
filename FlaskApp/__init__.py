@@ -89,7 +89,7 @@ def index():
     template = env.get_template("index.html")
     html = template.render()
     #
-    return html
+    return re
 
 @app.route("/table/")
 def table():
